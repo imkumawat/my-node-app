@@ -9,7 +9,6 @@ phases:
       - echo Logging in to Amazon ECR...
       - docker login --username springworks2905 --password d2946b34-795d-400b-9aa5-506a616b73a4
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - REPOSITORY_URI=743307425004.dkr.ecr.us-east-1.amazonaws.com/my-node-app-registry
       - IMAGE_TAG=${COMMIT_HASH:=latest}
   build:
     commands:
@@ -26,6 +25,6 @@ phases:
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo Writing image definitions file...
-      - printf '[{"name":"%s","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - printf '[{"name":"%s","imageUri":"%s"}]' $SERVICE_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 artifacts:
   files: imagedefinitions.json
