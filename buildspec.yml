@@ -4,7 +4,8 @@ phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - docker login --username springworks2905 --password d2946b34-795d-400b-9aa5-506a616b73a4
+      - aws --version
+      - $(aws ecr get-login --region $AWS_DEFAULT_REGION   --no-include-email)
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH:=latest}
   build:
@@ -17,8 +18,6 @@ phases:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker images...
-      - aws --version
-      - $(aws ecr get-login --region $AWS_DEFAULT_REGION   --no-include-email)
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo Writing image definitions file...
