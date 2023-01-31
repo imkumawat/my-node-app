@@ -1,28 +1,31 @@
-# Don't change this version, this version is buildspec.yml file's version
 version: 0.2
+
 phases:
+  install:
+    runtime-versions:
+      docker: 20
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
+      - docker login --username springworks2905 --password d2946b34-795d-400b-9aa5-506a616b73a4
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - REPOSITORY_URI=743307425004.dkr.ecr.us-east-1.amazonaws.com/my-node-app-registry
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t $REPOSITORY_URI:latest .
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
       - aws --version
       - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
-      - REPOSITORY_URI=743307425004.dkr.ecr.us-east-1.amazonaws.com/my-node-app-registry
-      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - IMAGE_TAG=${COMMIT_HASH:=latest}
-build:
-  commands:
-    - echo Build started on `date`
-    - echo Building the Docker image...
-    - docker build -t $REPOSITORY_URI:latest .
-    - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
-post_build:
-  commands:
-    - echo Build completed on `date`
-    - echo Pushing the Docker images...
-    - docker push $REPOSITORY_URI:latest
-    - docker push $REPOSITORY_URI:$IMAGE_TAG
-    - echo Writing image definitions file...
-    - printf '[{"name":"my-node-cntr","imageUri":"%s"}]'    $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
-    - cat imagedefinitions.json
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo Writing image definitions file...
+      - printf '[{"name":"%s","imageUri":"%s"}]' $SERVICE_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 artifacts:
   files: imagedefinitions.json
