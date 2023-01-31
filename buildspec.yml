@@ -9,7 +9,7 @@ phases:
       - echo Logging in to Amazon ECR...
       - docker login --username springworks2905 --password d2946b34-795d-400b-9aa5-506a616b73a4
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - REPOSITORY_URI=743307425004.dkr.ecr.sa-east-1.amazonaws.com/basic-node-app-rgr
+      - REPOSITORY_URI=743307425004.dkr.ecr.us-east-1.amazonaws.com/my-node-app-registry
       - IMAGE_TAG=${COMMIT_HASH:=latest}
   build:
     commands:
