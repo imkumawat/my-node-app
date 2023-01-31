@@ -21,7 +21,7 @@ phases:
       - echo Build completed on `date`
       - echo Pushing the Docker images...
       - aws --version
-      - $(aws ecr get-login --region $   --no-include-email)
+      - $(aws ecr get-login --region $AWS_DEFAULT_REGION   --no-include-email)
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo Writing image definitions file...
